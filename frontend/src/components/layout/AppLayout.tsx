@@ -116,12 +116,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <NavLink
                 to="/rules"
                 className={({ isActive }) =>
-                  `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-bold transition-all ${
+                  `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full py-2.5 text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-amber-400 text-stone-900 shadow-[0_0_16px_rgba(251,191,36,0.5)]'
                       : 'text-white/75 hover:bg-white/10 hover:text-white'
                   }`
                 }
+                style={({ isActive }) => ({
+                  paddingInline: isActive ? 'clamp(28px, 4vw, 36px)' : 'clamp(24px, 3vw, 32px)'
+                })}
               >
                 <RulesIcon size={14} />
                 规则管理
@@ -129,12 +132,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <NavLink
                 to="/children"
                 className={({ isActive }) =>
-                  `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-bold transition-all ${
+                  `flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full py-2.5 text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-amber-400 text-stone-900 shadow-[0_0_16px_rgba(251,191,36,0.5)]'
                       : 'text-white/75 hover:bg-white/10 hover:text-white'
                   }`
                 }
+                style={({ isActive }) => ({
+                  paddingInline: isActive ? 'clamp(28px, 4vw, 36px)' : 'clamp(24px, 3vw, 32px)'
+                })}
               >
                 <ChildrenIcon size={14} />
                 孩子管理
