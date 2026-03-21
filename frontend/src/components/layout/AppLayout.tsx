@@ -107,6 +107,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         >
           <span className="text-xl">⭐</span>
           <span className="text-base font-black tracking-tight">积分管理</span>
+          <span className="text-xs text-white/50">v1.0.3</span>
         </NavLink>
 
         {/* Desktop nav — visible on sm+ (≥640px) only */}
