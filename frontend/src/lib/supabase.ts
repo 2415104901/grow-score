@@ -3,8 +3,14 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// 开发环境：调试信息
+if (import.meta.env.DEV) {
+  console.log('Supabase URL:', supabaseUrl)
+  console.log('Supabase Anon Key:', supabaseAnonKey ? '***已设置***' : '未设置')
+}
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('请在 .env.local 中配置 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY')
+  throw new Error(`Supabase 配置缺失。URL: ${supabaseUrl ? '✓' : '✗'}, Key: ${supabaseAnonKey ? '✓' : '✗'}`)
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
