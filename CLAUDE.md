@@ -8,6 +8,7 @@ A family score management system (成长积分宝) - a web app for parents to tr
 
 **Project URL**: https://github.com/2415104901/grow-score
 **Live Site**: https://2415104901.github.io/grow-score/
+**Language**: Primary UI and documentation are in Chinese
 
 ## Development Commands
 
@@ -15,22 +16,24 @@ A family score management system (成长积分宝) - a web app for parents to tr
 # Install dependencies
 cd frontend && npm install
 
-# Start dev server (runs on http://localhost:5173)
+# Start dev server (runs on http://localhost:5173/grow-score/)
+# NOTE: Routes use /grow-score/ basename - access via http://localhost:5173/grow-score/
 npm run dev
 
 # Build for production
 npm run build
 
-# Preview production build
+# Preview production build (serves dist/ at http://localhost:4173/grow-score/)
 npm run preview
 
 # Lint code
 npm run lint
 
-# Database operations (via npx)
+# Direct database queries (requires Supabase CLI linked to project)
 npx -y supabase db query --linked "SELECT * FROM rules;"
-npx -y supabase db query --linked -f path/to/file.sql
 ```
+
+**Note**: This project has no test suite currently. When adding tests, add test scripts to `package.json`.
 
 ## Architecture
 
@@ -61,11 +64,38 @@ grow-score/
 │       ├── lib/           # Supabase client
 │       ├── version.ts     # App version (single source of truth)
 │       └── main.tsx       # Entry point
-├── supabase/
-│   └── migrations/        # Database schema migrations
-├── .github/workflows/     # CI/CD (GitHub Pages deployment)
+├── openspec/              # OpenSpec change management
+│   ├── changes/           # Active changes (proposal, specs, design, tasks)
+│   ├── archive/           # Completed changes (YYYY-MM-DD--name format)
+│   └── config.yaml        # OpenSpec configuration
+├── .github/
+│   ├── workflows/         # CI/CD (GitHub Pages deployment)
+│   ├── skills/            # OpenSpec skills (opsx:* commands)
+│   └── prompts/           # OpenSpec prompt templates
+├── docs/                  # Project documentation
+│   ├── REQUIREMENTS.md    # Frozen requirements (Chinese)
+│   └── PRP.md             # Product Requirements Plan (Chinese)
 └── dist/                  # Build output (not committed)
 ```
+
+### OpenSpec Workflow
+
+This project uses OpenSpec for change management. Key commands:
+- `/opsx:new <name>` - Start a new change (step-by-step)
+- `/opsx:ff <name>` - Fast-forward: create all artifacts at once
+- `/opsx:continue <name>` - Continue working on existing change
+- `/opsx:apply <name>` - Implement tasks from a change
+- `/opsx:verify <name>` - Verify implementation matches artifacts
+- `/opsx:archive <name>` - Archive completed change
+- `/opsx:explore` - Think through problems before implementing
+
+Changes live in `openspec/changes/<name>/` with artifacts:
+- `proposal.md` - Why we're making the change
+- `specs/` - What we're building (requirements/scenarios)
+- `design.md` - How we'll build it
+- `tasks.md` - Implementation checklist
+
+See `.github/skills/openspec-onboard/SKILL.md` for guided onboarding.
 
 ### Data Model
 
@@ -144,7 +174,9 @@ Builds on push to `main` or `001-family-score-system` branches.
 3. Builds with `npm run build` (outputs to `../dist`)
 4. Deploys `dist/` to GitHub Pages
 
-**Base URL**: `/grow-score/` (configured in `vite.config.ts`)
+**Base URL**: `/grow-score/` (configured in both `vite.config.ts` and `main.tsx` BrowserRouter)
+
+**Local development**: Access at `http://localhost:5173/grow-score/` - the basename is required locally too.
 
 ### Version Management
 
@@ -157,25 +189,26 @@ This automatically updates:
 - Page title (set in `main.tsx`)
 - Header display (in `AppLayout.tsx`)
 
-## Database Migrations
+## Documentation
 
-Place new migrations in `supabase/migrations/` with sequential numbering:
-```
-001_initial_schema.sql
-002_rls_policies.sql
-003_insert_rules.sql
-```
+- `docs/REQUIREMENTS.md` - Frozen requirements document (需求文档) with functional specs, security requirements, and acceptance criteria
+- `docs/PRP.md` - Product Requirements Plan (产品需求规划) with feature definitions, technical architecture, and MVP scope
 
-Apply migration:
-```bash
-npx -y supabase db query --linked -f supabase/migrations/003_xxx.sql
-```
+Both documents are in Chinese and serve as the source of truth for feature requirements.
 
 ## Important Notes
 
-- **AI-generated code**: When AI generates code that is committed, add `// AI Generated` at the beginning of the file or significant code blocks for tracking purposes.
+- **AI-generated code**: When AI generates code that is committed, add `// AI Generated` marker at the beginning of the file or significant code blocks for tracking purposes.
+- **Git commits**: All commits created by AI MUST include `[AI Generated]` prefix in the commit message for tracking purposes.
 - **Environment variables**: Never commit `.env.local` files. Use `VITE_` prefix for client-side vars.
-- **RLS debugging**: If queries return empty data, check `supabase/migrations/002_rls_policies.sql` for policy conditions.
-- **Records immutability**: Never add UPDATE/DELETE policies on `records`. Use `correction_of` field for Phase 2 corrections.
+- **Records immutability**: Never add UPDATE/DELETE policies on `records`. Use `correction_of` field for corrections (planned for Phase 2).
 - **Date handling**: Records use local dates (yyyy-MM-dd format), not timestamps. `date <= CURRENT_DATE` is enforced at DB level.
-- **Client-side aggregation**: Monthly score aggregation happens in `fetchMonthlyScores()` (client-side) to avoid PostgreSQL RPC complexity.
+- **Client-side aggregation**: Monthly score aggregation happens in `fetchMonthlyScores()` client-side.
+- **Routing basename**: All routes use `/grow-score/` basename - this is critical for both local dev and production.
+
+## GitHub Skills and Prompts
+
+The `.github/skills/` and `.github/prompts/` directories contain OpenSpec workflow automation:
+- Skills are invoked via `/opsx:*` commands (e.g., `/opsx:new`, `/opsx:apply`)
+- Prompts provide templates for different workflow phases
+- These integrate with the OpenSpec CLI for change management

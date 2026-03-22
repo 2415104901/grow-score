@@ -43,61 +43,11 @@ export default function QuickScorePanel({
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <div className="flex flex-col rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200" style={{ maxHeight: '80dvh' }}>
       <h3 className="mb-3 text-sm font-semibold text-slate-700">选择规则</h3>
 
-      {positiveRules.length > 0 && (
-        <section className="mb-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-green-600">
-            加分规则
-          </p>
-          <div className="flex flex-col gap-2">
-            {positiveRules.map((rule) => (
-              <RuleCheckRow
-                key={rule.id}
-                rule={rule}
-                checked={selected.has(rule.id)}
-                onChange={() => toggle(rule.id)}
-                disabled={isSubmitting}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {negativeRules.length > 0 && (
-        <section className="mb-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-red-500">扣分规则</p>
-          <div className="flex flex-col gap-2">
-            {negativeRules.map((rule) => (
-              <RuleCheckRow
-                key={rule.id}
-                rule={rule}
-                checked={selected.has(rule.id)}
-                onChange={() => toggle(rule.id)}
-                disabled={isSubmitting}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Delta preview */}
-      {hasSelection && (
-        <div className="mb-4 rounded-lg bg-slate-50 px-3 py-2 text-sm">
-          <span className="text-slate-500">本次变化：</span>
-          <span
-            className={`ml-1 font-bold tabular-nums ${
-              delta >= 0 ? 'text-green-600' : 'text-red-500'
-            }`}
-          >
-            {delta >= 0 ? '+' : ''}
-            {delta} 分
-          </span>
-        </div>
-      )}
-
-      <div className="flex gap-2">
+      {/* Buttons at top - always accessible */}
+      <div className="mb-3 flex gap-2 shrink-0">
         <button
           onClick={onCancel}
           disabled={isSubmitting}
@@ -139,6 +89,60 @@ export default function QuickScorePanel({
           )}
           {isSubmitting ? '提交中…' : '提交'}
         </button>
+      </div>
+
+      {/* Delta preview - show score change as user selects */}
+      {hasSelection && (
+        <div className="mb-3 rounded-lg bg-slate-50 px-3 py-2 text-sm shrink-0">
+          <span className="text-slate-500">本次变化：</span>
+          <span
+            className={`ml-1 font-bold tabular-nums ${
+              delta >= 0 ? 'text-green-600' : 'text-red-500'
+            }`}
+          >
+            {delta >= 0 ? '+' : ''}
+            {delta} 分
+          </span>
+        </div>
+      )}
+
+      {/* Scrollable rule list - fills remaining space */}
+      <div className="flex-1 overflow-y-auto px-1 min-h-0">
+        {positiveRules.length > 0 && (
+          <section className="mb-4">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-green-600">
+              加分规则
+            </p>
+            <div className="flex flex-col gap-2">
+              {positiveRules.map((rule) => (
+                <RuleCheckRow
+                  key={rule.id}
+                  rule={rule}
+                  checked={selected.has(rule.id)}
+                  onChange={() => toggle(rule.id)}
+                  disabled={isSubmitting}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {negativeRules.length > 0 && (
+          <section className="mb-4">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-red-500">扣分规则</p>
+            <div className="flex flex-col gap-2">
+              {negativeRules.map((rule) => (
+                <RuleCheckRow
+                  key={rule.id}
+                  rule={rule}
+                  checked={selected.has(rule.id)}
+                  onChange={() => toggle(rule.id)}
+                  disabled={isSubmitting}
+                />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )
