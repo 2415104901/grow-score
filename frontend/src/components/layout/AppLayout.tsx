@@ -3,6 +3,7 @@ import { useNavigate, NavLink } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { signOut } from '../../services/auth'
 import { useAuth } from '../../hooks/useAuth'
+import { APP_VERSION } from '../../version'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -107,7 +108,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         >
           <span className="text-xl">⭐</span>
           <span className="text-base font-black tracking-tight">积分管理</span>
-          <span className="text-xs text-white/50">v1.0.3</span>
+          <span className="text-xs text-white/50">v{APP_VERSION}</span>
         </NavLink>
 
         {/* Desktop nav — visible on sm+ (≥640px) only */}
