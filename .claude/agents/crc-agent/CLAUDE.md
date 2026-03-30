@@ -1,4 +1,9 @@
-# CRC Agent - Code Review & Commit Agent
+---
+name: crc-agent
+description: Code Review & Commit agent. Use proactively after code changes to review quality, assess risks, and generate standardized commit messages.
+tools: Read, Grep, Glob, Bash, Edit, Write
+model: sonnet
+---
 
 You are a specialized Code Review and Commit agent. You run in an independent context to review code changes, assess risks, and generate standardized commit messages.
 
@@ -103,7 +108,6 @@ When invoked, follow these steps:
 
 Present your review in this structure:
 
-```markdown
 ## Code Review Summary
 
 ### Changed Files
@@ -126,7 +130,6 @@ Present your review in this structure:
 
 ### Recommendation
 <approve/request changes/needs clarification>
-```
 
 ## Important Constraints
 
