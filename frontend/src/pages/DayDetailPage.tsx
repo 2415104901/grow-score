@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useDayRecords, useInsertRecords } from '../hooks/useRecords'
 import { useRules } from '../hooks/useRules'
+import { useChildren } from '../hooks/useChildren'
+import { useRedemption } from '../hooks/useRedemption'
 import RecordTimeline from '../components/records/RecordTimeline'
 import QuickScorePanel from '../components/records/QuickScorePanel'
+import RedemptionPanel from '../components/records/RedemptionPanel'
 import type { InsertRecordInput } from '../types'
 
 export default function DayDetailPage() {
@@ -17,10 +20,20 @@ export default function DayDetailPage() {
 
   const { data: records, isLoading: recordsLoading } = useDayRecords(childId, date)
   const { data: rules } = useRules()
+  const { data: children } = useChildren()
   const insertRecords = useInsertRecords(childId, date)
+  const redemption = useRedemption(childId, profile?.user_id ?? '', date)
 
   const [panelOpen, setPanelOpen] = useState(autoOpen)
+  const [panelType, setPanelType] = useState<'add' | 'redeem'>('add')
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Get current child's balance
+  const currentChild = useMemo(
+    () => children?.find((c) => c.id === childId),
+    [children, childId]
+  )
+  const currentBalance = currentChild?.total_score ?? 0
 
   const dailyNet = (records ?? []).reduce((sum, r) => sum + r.score_snapshot, 0)
 
@@ -46,6 +59,31 @@ export default function DayDetailPage() {
           : '提交失败，请重试'
       setSubmitError(msg)
     }
+  }
+
+  async function handleRedeem(points: number) {
+    setSubmitError(null)
+    try {
+      await redemption.mutateAsync(points)
+      setPanelOpen(false)
+    } catch (err) {
+      const msg =
+        err instanceof Error && err.name === 'PermissionError'
+          ? '权限不足，无法兑换'
+          : '兑换失败，请重试'
+      setSubmitError(msg)
+    }
+  }
+
+  function openPanel(type: 'add' | 'redeem') {
+    setPanelType(type)
+    setPanelOpen(true)
+    setSubmitError(null)
+  }
+
+  function closePanel() {
+    setPanelOpen(false)
+    setSubmitError(null)
   }
 
   // Format date for display: yyyy-MM-dd → M月D日 (周X)
@@ -82,37 +120,56 @@ export default function DayDetailPage() {
         <RecordTimeline records={records ?? []} />
       )}
 
-      {/* Parent-only: add record button + panel */}
-      {isParent && (
-        <div className="mt-2">
-          {submitError && (
-            <p className="mb-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-              {submitError}
-            </p>
-          )}
-          {panelOpen ? (
+      {/* Action buttons + panel */}
+      <div className="mt-2">
+        {submitError && (
+          <p className="mb-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+            {submitError}
+          </p>
+        )}
+        {panelOpen ? (
+          panelType === 'add' ? (
             <QuickScorePanel
               rules={rules ?? []}
               onSubmit={handleSubmit}
-              onCancel={() => {
-                setPanelOpen(false)
-                setSubmitError(null)
-              }}
+              onCancel={closePanel}
               isSubmitting={insertRecords.isPending}
             />
           ) : (
+            <RedemptionPanel
+              currentBalance={currentBalance}
+              onSubmit={handleRedeem}
+              onCancel={closePanel}
+              isSubmitting={redemption.isPending}
+            />
+          )
+        ) : (
+          <div className="flex gap-2">
+            {/* Parent-only: add record button */}
+            {isParent && (
+              <button
+                onClick={() => openPanel('add')}
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2
+                  border-dashed border-indigo-300 py-3 text-sm font-medium text-indigo-600
+                  transition-colors hover:border-indigo-400 hover:bg-indigo-50"
+              >
+                <span className="text-lg leading-none">＋</span>
+                新增记录
+              </button>
+            )}
+            {/* Both parent and child: redeem points button */}
             <button
-              onClick={() => setPanelOpen(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border-2
-                border-dashed border-indigo-300 py-3 text-sm font-medium text-indigo-600
-                transition-colors hover:border-indigo-400 hover:bg-indigo-50"
+              onClick={() => openPanel('redeem')}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl
+                border-2 border-dashed border-green-300 py-3 text-sm font-medium text-green-600
+                transition-colors hover:border-green-400 hover:bg-green-50"
             >
-              <span className="text-lg leading-none">＋</span>
-              新增记录
+              <span className="text-lg leading-none">💰</span>
+              兑换积分
             </button>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

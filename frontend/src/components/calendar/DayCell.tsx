@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { isToday } from 'date-fns'
+import { isToday, format } from 'date-fns'
 
 interface DayCellProps {
   day: Date
@@ -10,7 +10,7 @@ interface DayCellProps {
 export default function DayCell({ day, score, childId }: DayCellProps) {
   const navigate = useNavigate()
   const today = isToday(day)
-  const dateStr = day.toISOString().slice(0, 10) // yyyy-MM-dd
+  const dateStr = format(day, 'yyyy-MM-dd') // yyyy-MM-dd (local timezone)
 
   const hasScore = score !== undefined
   const isPositive = hasScore && score >= 0
