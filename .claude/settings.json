@@ -1,0 +1,8 @@
+{
+  "subagents": {
+    "crc-agent": {
+      "description": "Code Review & Commit Agent - Reviews code changes, assesses risks, and generates standardized commit messages",
+      "path": "agents/crc-agent"
+    }
+  }
+}
