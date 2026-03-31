@@ -1,4 +1,4 @@
-import { eachDayOfInterval, startOfMonth, endOfMonth, getDay } from 'date-fns'
+import { eachDayOfInterval, startOfMonth, endOfMonth, getDay, format } from 'date-fns'
 import DayCell from './DayCell'
 import type { DailyScore } from '../../types'
 
@@ -44,7 +44,7 @@ export default function MonthCalendar({ year, month, scores, childId }: MonthCal
         ))}
         {/* Day cells */}
         {days.map((day) => {
-          const dateStr = day.toISOString().slice(0, 10)
+          const dateStr = format(day, 'yyyy-MM-dd')
           const score = scoreMap.get(dateStr)
           return (
             <DayCell key={dateStr} day={day} score={score} childId={childId} />

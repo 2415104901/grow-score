@@ -70,7 +70,7 @@ export interface DailyScore {
 /** 新增记录的输入参数 */
 export interface InsertRecordInput {
   child_id: string
-  rule_id: string
+  rule_id: string | null
   rule_name_snapshot: string
   score_snapshot: number
   date: string
